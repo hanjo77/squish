@@ -10,9 +10,12 @@ public class PlayerBehaviour : MonoBehaviour {
 	private bool _isColliding;
 	private Vector3 _targetPos;
 	private Vector3 _prevPos;
+	private bool _touchesBorder;
+	private GameBehaviour _game;
 
 	// Use this for initialization
 	void Start () {
+		_game = this.transform.parent.gameObject.GetComponent<GameBehaviour> ();
 		this.transform.localScale = new Vector3 (4f, 4f, 0);
 	}
 	
@@ -40,6 +43,13 @@ public class PlayerBehaviour : MonoBehaviour {
 			} else if (Input.GetKey (KeyCode.DownArrow)) {
 				this.Move (new Vector3(0, _moveStep * -1, 0));
 			}
+			if (!this._touchesBorder || !_game.IsMoving ()) {
+				this.transform.localPosition = new Vector3 (
+					Mathf.Round (this.transform.localPosition.x),
+					Mathf.Round (this.transform.localPosition.y),
+					Mathf.Round (this.transform.localPosition.z));
+				this._prevPos = this.transform.localPosition;
+			}
 		}
 	}
 
@@ -53,5 +63,18 @@ public class PlayerBehaviour : MonoBehaviour {
 	{
 		this.transform.localPosition = this._prevPos;
 		this._isMoving = false;
+		if (col.gameObject.tag == "FieldBorder") {
+			this._touchesBorder = true;
+		}
+		if (this._touchesBorder && (col.gameObject.tag == "Wall")) {
+			_game.ResetGame ();
+		}
+	}
+
+	void OnCollisionExit2D (Collision2D col)
+	{
+		if (col.gameObject.tag == "FieldBorder") {
+			this._touchesBorder = false;
+		}
 	}
 }
