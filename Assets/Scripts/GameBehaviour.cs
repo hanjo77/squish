@@ -128,7 +128,7 @@ public class GameBehaviour : MonoBehaviour {
 	void PlacePlayer () {
 		var myPlayer = Instantiate (player);
 		myPlayer.parent = this.transform;
-		myPlayer.localPosition = new Vector3 (0, 0, 0);
+		myPlayer.localPosition = new Vector3 (0, 0, -2f);
 	}
 
 	void DrawBorder () {

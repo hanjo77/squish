@@ -5,6 +5,11 @@ using UnityEngine;
 public class PlayerBehaviour : MonoBehaviour {
 
 	public float speed;
+	public RuntimeAnimatorController animUp;
+	public RuntimeAnimatorController animDown;
+	public RuntimeAnimatorController animLeft;
+	public RuntimeAnimatorController animRight;
+
 	private float _moveStep = 1;
 	private bool _isMoving;
 	private bool _isColliding;
@@ -12,10 +17,13 @@ public class PlayerBehaviour : MonoBehaviour {
 	private Vector3 _prevPos;
 	private bool _touchesBorder;
 	private GameBehaviour _game;
+	private Animator _spriteAnimator;
 
 	// Use this for initialization
 	void Start () {
 		_game = this.transform.parent.gameObject.GetComponent<GameBehaviour> ();
+		_spriteAnimator = this.gameObject.GetComponentInChildren<Animator> ();
+		_spriteAnimator.Stop ();
 		this.transform.localScale = new Vector3 (4f, 4f, 0);
 	}
 	
@@ -34,14 +42,20 @@ public class PlayerBehaviour : MonoBehaviour {
 			}
 		} else {
 			if (Input.GetKey (KeyCode.LeftArrow)) {
-				this.Move (new Vector3(_moveStep * -1, 0, 0));
+				_spriteAnimator.runtimeAnimatorController = animLeft;
+				this.Move (new Vector3 (_moveStep * -1, 0, 0));
 			} else if (Input.GetKey (KeyCode.RightArrow)) {
-				this.Move (new Vector3(_moveStep, 0, 0));
-			}
-			if (Input.GetKey (KeyCode.UpArrow)) {
-				this.Move (new Vector3(0, _moveStep, 0));
+				_spriteAnimator.runtimeAnimatorController = animRight;
+				this.Move (new Vector3 (_moveStep, 0, 0));
+			} else if (Input.GetKey (KeyCode.UpArrow)) {
+				_spriteAnimator.runtimeAnimatorController = animUp;
+				this.Move (new Vector3 (0, _moveStep, 0));
 			} else if (Input.GetKey (KeyCode.DownArrow)) {
-				this.Move (new Vector3(0, _moveStep * -1, 0));
+				_spriteAnimator.runtimeAnimatorController = animDown;
+				this.Move (new Vector3 (0, _moveStep * -1, 0));
+			} else {
+				_spriteAnimator.runtimeAnimatorController = null;
+				_spriteAnimator.Stop ();
 			}
 			if (!this._touchesBorder || !_game.IsMoving ()) {
 				this.transform.localPosition = new Vector3 (
@@ -57,6 +71,7 @@ public class PlayerBehaviour : MonoBehaviour {
 		this._prevPos = this.transform.localPosition;
 		this._targetPos = this.transform.localPosition + direction;
 		this._isMoving = true;
+		_spriteAnimator.Play ("Entry", 0);
 	}
 
 	void OnCollisionEnter2D (Collision2D col)
